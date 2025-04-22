@@ -6,6 +6,7 @@ from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from PIL import Image
 import io
+from multiprocessing import Process
 
 def createChromeDrive():
     options = Options()
@@ -91,11 +92,11 @@ def get_images_from_google(driver, delay, max_images, folder):
 
     return image_urls
 
-if __name__ == '__main__':
-    search_query = 'lula retrato'
+def runScraper(termo):
+    search_query = termo
     search_url = f"https://www.google.com/search?q={search_query}&tbm=isch"
 
-    folder = "Lula"
+    folder = termo
     os.makedirs(folder, exist_ok=True)
 
     driver = createChromeDrive()
@@ -104,3 +105,19 @@ if __name__ == '__main__':
     get_images_from_google(driver, delay=1, max_images=150, folder=folder)
 
     driver.quit()
+
+
+if __name__ == '__main__':
+    termos_de_pesquisa = [
+        '',
+    ]
+
+    processos = []
+
+    for termo in termos_de_pesquisa:
+        p = Process(target=runScraper, args=(termo,))
+        processos.append(p)
+        p.start()
+
+    for p in processos:
+        p.join()
